@@ -123,7 +123,7 @@ sequenceDiagram
 | `moderation` | Reportes de preguntas por usuarios |
 | `scraping` | Gestión de spiders y sus ejecuciones |
 | `media` | Metadatos, permisos y API de assets multimedia |
-| `storage` | Abstracción de almacenamiento local/R2 |
+| `storage` | Abstracción de almacenamiento local de archivos |
 
 ## Manejo de errores
 

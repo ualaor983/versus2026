@@ -10,9 +10,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "versus.storage")
 public class StorageProperties {
 
-    private String provider = "local";
     private String localRoot = "target/local-storage";
-    private String bucket = "versus-media-dev";
+    private String publicPath = "/media-files/";
     private String publicBaseUrl = "";
     private long maxFileSizeBytes = 10 * 1024 * 1024;
     private long maxAvatarSizeBytes = 2 * 1024 * 1024;
@@ -27,16 +26,6 @@ public class StorageProperties {
             "application/pdf",
             "text/plain"
     ));
-    private R2 r2 = new R2();
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
     public String getLocalRoot() {
         return localRoot;
     }
@@ -45,12 +34,12 @@ public class StorageProperties {
         this.localRoot = localRoot;
     }
 
-    public String getBucket() {
-        return bucket;
+    public String getPublicPath() {
+        return publicPath;
     }
 
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
+    public void setPublicPath(String publicPath) {
+        this.publicPath = publicPath;
     }
 
     public String getPublicBaseUrl() {
@@ -85,41 +74,4 @@ public class StorageProperties {
         this.allowedContentTypes = allowedContentTypes;
     }
 
-    public R2 getR2() {
-        return r2;
-    }
-
-    public void setR2(R2 r2) {
-        this.r2 = r2;
-    }
-
-    public static class R2 {
-        private String endpoint = "";
-        private String accessKeyId = "";
-        private String secretAccessKey = "";
-
-        public String getEndpoint() {
-            return endpoint;
-        }
-
-        public void setEndpoint(String endpoint) {
-            this.endpoint = endpoint;
-        }
-
-        public String getAccessKeyId() {
-            return accessKeyId;
-        }
-
-        public void setAccessKeyId(String accessKeyId) {
-            this.accessKeyId = accessKeyId;
-        }
-
-        public String getSecretAccessKey() {
-            return secretAccessKey;
-        }
-
-        public void setSecretAccessKey(String secretAccessKey) {
-            this.secretAccessKey = secretAccessKey;
-        }
-    }
 }
