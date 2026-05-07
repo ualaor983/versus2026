@@ -1,6 +1,7 @@
 package com.versus.api.storage;
 
 import com.versus.api.common.exception.ApiException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
+@ConditionalOnProperty(prefix = "versus.storage", name = "provider", havingValue = "local", matchIfMissing = true)
 public class LocalStorageService implements StorageService {
 
     private final StorageProperties properties;

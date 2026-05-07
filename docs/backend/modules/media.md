@@ -7,7 +7,7 @@ Estado: implementado (dependencia #121)
 
 ## Responsabilidad
 
-Centraliza la subida, validacion, almacenamiento local y consulta de metadatos de assets usados por la aplicacion. El modulo `media` contiene reglas de negocio, permisos y metadatos persistidos; el modulo `storage` abstrae la escritura fisica en disco.
+Centraliza la subida, validacion, almacenamiento y consulta de metadatos de assets usados por la aplicacion. El modulo `media` contiene reglas de negocio, permisos y metadatos persistidos; el modulo `storage` abstrae el proveedor fisico: local en desarrollo/tests y Cloudflare R2 cuando `versus.storage.provider=r2`.
 
 Este modulo no decide donde se muestran los assets. Otros modulos, como `users`, consumen `MediaService` para casos concretos como avatar de perfil.
 
@@ -81,6 +81,7 @@ classDiagram
 
     class LocalStorageService {
         <<Service>>
+        <<Provider: local>>
     }
 
     class LocalStorageWebConfig {
@@ -88,11 +89,19 @@ classDiagram
         +addResourceHandlers(ResourceHandlerRegistry) void
     }
 
+    class R2StorageService {
+        <<Service>>
+        <<Provider: r2>>
+    }
+
     class StorageProperties {
         <<ConfigurationProperties>>
+        +String provider
         +String localRoot
         +String publicPath
+        +String bucket
         +String publicBaseUrl
+        +R2 r2
         +long maxFileSizeBytes
         +long maxAvatarSizeBytes
         +List~String~ allowedContentTypes
@@ -123,8 +132,10 @@ classDiagram
     MediaAsset --> MediaKind : usa
     MediaAsset --> MediaVisibility : usa
     LocalStorageService ..|> StorageService
+    R2StorageService ..|> StorageService
     LocalStorageService --> StorageProperties : lee configuracion
     LocalStorageWebConfig --> StorageProperties : expone carpeta
+    R2StorageService --> StorageProperties : lee configuracion
     StorageService ..> StoredObject : produce
     MediaService ..> MediaAssetResponse : produce
 ```
@@ -178,7 +189,7 @@ La respuesta envuelve el asset persistido:
 - limite especifico `versus.storage.max-avatar-size-bytes`
 - MIME de imagen (`image/jpeg`, `image/png`, `image/webp`, `image/gif`)
 
-Despues de almacenar el asset, actualiza `users.avatar_url` con la URL local devuelta por `LocalStorageService`.
+Despues de almacenar el asset, actualiza `users.avatar_url` con la URL devuelta por el provider activo.
 
 ### Errores comunes
 
@@ -205,11 +216,11 @@ Tabla: media_assets
 | owner_id          | UUID del usuario propietario                       |
 | kind              | ENUM(IMAGE, VIDEO, AUDIO, DOCUMENT, OTHER)         |
 | original_filename | VARCHAR(255), nombre recibido del cliente          |
-| object_key        | VARCHAR(512), UNIQUE, ruta relativa en disco       |
+| object_key        | VARCHAR(512), UNIQUE, key interna del provider     |
 | content_type      | VARCHAR(128), MIME normalizado                     |
 | size_bytes        | BIGINT, tamano del archivo                         |
 | visibility        | ENUM(PUBLIC, PRIVATE), default PRIVATE             |
-| public_url        | VARCHAR(1024), URL bajo /media-files/**            |
+| public_url        | VARCHAR(1024), URL publica o CDN                   |
 | created_at        | TIMESTAMPTZ, @PrePersist                           |
 +-------------------+----------------------------------------------------+
 Indices: owner_id, object_key (UNIQUE)
@@ -225,20 +236,26 @@ Indices: owner_id, object_key (UNIQUE)
 
 ---
 
-## Almacenamiento local
+## Proveedores de almacenamiento
 
 ### `StorageService`
 
-Interfaz minima que oculta la escritura fisica:
+Interfaz minima que oculta el proveedor fisico:
 
 ```java
 StoredObject put(String objectKey, InputStream content, long sizeBytes, String contentType);
 void delete(String objectKey);
 ```
 
-`MediaService` genera la `objectKey`, valida el archivo y persiste metadatos. `LocalStorageService` solo escribe o borra bytes.
+`MediaService` genera la `objectKey`, valida el archivo y persiste metadatos. El provider solo escribe o borra bytes.
 
-### `LocalStorageService`
+### Provider `local`
+
+Activo por defecto:
+
+```properties
+versus.storage.provider=local
+```
 
 Escribe archivos dentro de `versus.storage.local-root`, por defecto `target/local-storage`. Antes de copiar el archivo comprueba que la ruta final normalizada sigue dentro de esa carpeta para evitar path traversal.
 
@@ -260,6 +277,16 @@ Expone la carpeta local mediante un resource handler de Spring MVC:
 
 `SecurityConfig` permite `GET /media-files/**` sin autenticacion para que imagenes y avatares puedan cargarse directamente desde etiquetas `<img>`.
 
+### Provider `r2`
+
+Activo con:
+
+```properties
+versus.storage.provider=r2
+```
+
+Usa Cloudflare R2 mediante la API S3-compatible del AWS SDK v2. Requiere endpoint, bucket, access key y secret configurados por entorno. La URL publica se construye con `versus.storage.public-base-url` y la `objectKey`; normalmente esa base debe apuntar al dominio publico/CDN de Cloudflare.
+
 ---
 
 ## Configuracion
@@ -268,9 +295,14 @@ Expone la carpeta local mediante un resource handler de Spring MVC:
 |---|---|---|
 | `spring.servlet.multipart.max-file-size` | `${MEDIA_MAX_FILE_SIZE:10MB}` | Limite multipart de Spring |
 | `spring.servlet.multipart.max-request-size` | `${MEDIA_MAX_REQUEST_SIZE:10MB}` | Limite total de request |
+| `versus.storage.provider` | `local` | Provider activo: `local` o `r2` |
 | `versus.storage.local-root` | `target/local-storage` | Carpeta local donde se escriben archivos |
 | `versus.storage.public-path` | `/media-files/` | Ruta HTTP publica para servir archivos |
-| `versus.storage.public-base-url` | vacio | Base opcional si se sirve desde otro host local |
+| `versus.storage.bucket` | `versus-media-dev` | Bucket usado por R2 |
+| `versus.storage.public-base-url` | vacio | Base opcional para URL publica o CDN |
+| `versus.storage.r2.endpoint` | vacio | Endpoint S3-compatible de R2 |
+| `versus.storage.r2.access-key-id` | vacio | Access key de R2 |
+| `versus.storage.r2.secret-access-key` | vacio | Secret key de R2 |
 | `versus.storage.max-file-size-bytes` | `10485760` | Limite de assets genericos |
 | `versus.storage.max-avatar-size-bytes` | `2097152` | Limite especifico de avatar |
 | `versus.storage.allowed-content-types` | lista segura | MIME aceptados |
@@ -278,12 +310,18 @@ Expone la carpeta local mediante un resource handler de Spring MVC:
 Variables equivalentes en `.env.example`:
 
 ```bash
+STORAGE_PROVIDER=local
 STORAGE_LOCAL_ROOT=target/local-storage
 MEDIA_PUBLIC_BASE_URL=
 MEDIA_MAX_FILE_SIZE=10MB
 MEDIA_MAX_REQUEST_SIZE=10MB
 MEDIA_MAX_FILE_SIZE_BYTES=10485760
 MEDIA_MAX_AVATAR_SIZE_BYTES=2097152
+R2_ENDPOINT=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=versus-media
+R2_PUBLIC_BASE_URL=
 ```
 
 ---
@@ -310,15 +348,15 @@ sequenceDiagram
     participant MS as MediaService
     participant SS as StorageService
     participant DB as PostgreSQL
-    participant Disk as Disco local
+    participant Store as Local/R2
 
     C->>MC: POST /api/media/upload multipart + JWT
     MC->>MS: upload(userId, file, kind, visibility)
     MS->>MS: valida tamano y contentType
     MS->>MS: genera objectKey
     MS->>SS: put(objectKey, stream, size, contentType)
-    SS->>Disk: escribe archivo
-    Disk-->>SS: ok
+    SS->>Store: escribe objeto
+    Store-->>SS: ok
     SS-->>MS: StoredObject(objectKey, publicUrl)
     MS->>DB: INSERT media_assets
     DB-->>MS: MediaAsset
@@ -331,6 +369,8 @@ sequenceDiagram
 ## Extension futura
 
 - Paginacion y filtros en `/api/media/me` cuando el volumen de assets crezca.
-- Limpieza programada de archivos huerfanos si falla la persistencia tras escribir en disco.
+- URLs firmadas para subida directa desde frontend a R2.
+- URLs firmadas de lectura para assets privados.
+- Integracion con Cloudflare Images para variantes, resizing y optimizacion.
+- Limpieza programada de objetos huerfanos si falla la persistencia tras escribir en el provider.
 - Endpoint administrativo para borrar assets antiguos o no referenciados.
-- Miniaturas locales para imagenes grandes si la UI lo necesita.
