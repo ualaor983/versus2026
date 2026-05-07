@@ -20,14 +20,17 @@ classDiagram
         <<RequiresAuth>>
         +GET /api/users/me
         +PUT /api/users/me
+        +PUT /api/users/me/avatar
         +GET /api/users/{id}
     }
 
     class UserService {
         <<Service>>
         -UserRepository userRepo
+        -MediaService mediaService
         +getMe(UUID userId) UserMeResponse
         +updateMe(UUID userId, UpdateMeRequest) UserMeResponse
+        +updateAvatar(UUID userId, MultipartFile) UserMeResponse
         +getPublic(UUID targetId) UserPublicResponse
     }
 
@@ -101,6 +104,7 @@ classDiagram
 |---|---|---|---|---|
 | `GET` | `/api/users/me` | Bearer | — | `200` `UserMeResponse` |
 | `PUT` | `/api/users/me` | Bearer | `UpdateMeRequest` | `200` `UserMeResponse` |
+| `PUT` | `/api/users/me/avatar` | Bearer | `multipart/form-data` con `file` | `200` `UserMeResponse` |
 | `GET` | `/api/users/{id}` | Bearer | — | `200` `UserPublicResponse` |
 
 ### Diferencia entre `UserMeResponse` y `UserPublicResponse`
@@ -156,7 +160,8 @@ Tabla: users
 
 1. **Email inmutable**: no se puede cambiar el email tras el registro (no hay campo en `UpdateMeRequest`).
 2. **Contraseña no editable aquí**: el cambio de contraseña es responsabilidad del módulo `auth` (flujo futuro).
-3. **Soft delete**: `isActive = false` marca al usuario como inactivo sin eliminarlo de la BD. Los endpoints de usuarios no filtran por `isActive` actualmente — tener en cuenta para futuras consultas.
+3. **Avatar por URL o subida**: `PUT /api/users/me` conserva `avatarUrl` para compatibilidad, pero `PUT /api/users/me/avatar` delega en `media` y actualiza la URL tras subir la imagen.
+4. **Soft delete**: `isActive = false` marca al usuario como inactivo sin eliminarlo de la BD. Los endpoints de usuarios no filtran por `isActive` actualmente — tener en cuenta para futuras consultas.
 
 ---
 
@@ -179,4 +184,4 @@ El `UUID` viene del claim `sub` del access token, inyectado por `JwtAuthFilter` 
 
 - Endpoint `DELETE /api/users/me` para baja voluntaria (soft delete).
 - Endpoint `PUT /api/users/me/password` para cambio de contraseña (requiere contraseña actual).
-- Avatar upload a S3/Cloudflare R2 en lugar de URL externa.
+- Selección de avatar desde galería predefinida.
