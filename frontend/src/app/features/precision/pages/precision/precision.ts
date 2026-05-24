@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { GameService } from '../../../../core/services/game.service';
 import { AchievementToastService } from '../../../../core/services/achievement-toast.service';
+import { NotificationCenterService } from '../../../../core/services/notification-center.service';
 import { NumericInputComponent } from '../../../../shared/components/ui/numeric-input/numeric-input';
 import { audioService } from '../../../../core/services/AudioService';
 import {
@@ -23,6 +24,7 @@ export class Precision implements OnInit, OnDestroy {
   private readonly game = inject(GameService);
   private readonly router = inject(Router);
   private readonly achievementToasts = inject(AchievementToastService);
+  private readonly notifications = inject(NotificationCenterService);
 
   @ViewChild(NumericInputComponent) private input?: NumericInputComponent;
 
@@ -119,6 +121,7 @@ export class Precision implements OnInit, OnDestroy {
     if (res.gameOver) {
       audioService.play('game_over');
       audioService.stopBgm();
+      this.notifications.addAchievements(res.achievementsUnlocked);
       this.achievementToasts.showMany(res.achievementsUnlocked);
       const finalRounds = this.rounds();
       setTimeout(

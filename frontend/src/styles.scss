@@ -294,6 +294,237 @@ html, body {
 
     &:hover .vs-avatar { border-color: var(--vs-border-focus); }
   }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.vs-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--vs-border);
+  border-radius: var(--vs-radius-sm);
+  background: transparent;
+  color: var(--vs-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--vs-transition), color var(--vs-transition), background var(--vs-transition);
+
+  &:hover {
+    border-color: var(--vs-border-focus);
+    color: var(--vs-text-primary);
+    background: rgba(255,255,255,0.03);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &--sm {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+}
+
+.vs-notification-center {
+  position: relative;
+  z-index: 80;
+}
+
+.vs-notification-center__trigger {
+  color: var(--vs-text-primary);
+}
+
+.vs-notification-center__badge {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--vs-accent-red);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vs-bg-base);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.vs-notification-center__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(380px, calc(100vw - 32px));
+  max-height: 440px;
+  overflow: hidden;
+  background: var(--vs-bg-elevated);
+  border: 1px solid var(--vs-border-strong);
+  border-radius: var(--vs-radius-md);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.6);
+  animation: vs-fade-in 160ms ease forwards;
+}
+
+.vs-notification-center__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid var(--vs-border);
+
+  .vs-section-title {
+    margin-bottom: 4px;
+  }
+}
+
+.vs-notification-center__count {
+  color: var(--vs-text-secondary);
+  font-size: 12px;
+}
+
+.vs-notification-center__tools {
+  display: flex;
+  gap: 8px;
+}
+
+.vs-notification-center__empty {
+  padding: 28px 16px;
+  color: var(--vs-text-muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.vs-notification-center__list {
+  max-height: 342px;
+  overflow: auto;
+}
+
+.vs-notification-item {
+  appearance: none;
+  border: none;
+  border-top: 1px solid var(--vs-border);
+  background: transparent;
+  color: var(--vs-text-primary);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &:hover {
+    background: rgba(255,255,255,0.035);
+  }
+
+  &.is-unread {
+    background: rgba(67,97,238,0.08);
+  }
+}
+
+.vs-notification-item__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--vs-radius-sm);
+  background: rgba(67,97,238,0.13);
+  color: var(--vs-accent-blue);
+  display: inline-grid;
+  place-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.vs-notification-item.tone-success .vs-notification-item__icon {
+  background: rgba(46,196,182,0.13);
+  color: var(--vs-accent-green);
+}
+
+.vs-notification-item.tone-warning .vs-notification-item__icon {
+  background: rgba(244,197,66,0.13);
+  color: var(--vs-accent-gold);
+}
+
+.vs-notification-item.tone-danger .vs-notification-item__icon {
+  background: rgba(230,57,70,0.13);
+  color: var(--vs-accent-red);
+}
+
+.vs-notification-item__body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.vs-notification-item__title {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.vs-notification-item__message {
+  color: var(--vs-text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.vs-notification-item__time {
+  color: var(--vs-text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+}
+
+@media (max-width: 760px) {
+  .vs-topbar {
+    padding: 12px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .vs-topbar__nav {
+    order: 3;
+    width: 100%;
+    gap: 16px;
+    justify-content: center;
+    overflow-x: auto;
+    padding-top: 4px;
+  }
+
+  .vs-topbar__user > div:first-child {
+    display: none;
+  }
+
+  .vs-notification-center__panel {
+    right: -48px;
+  }
 }
 
 .vs-avatar img {

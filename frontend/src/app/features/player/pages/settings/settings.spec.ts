@@ -8,6 +8,7 @@ import { AchievementService } from '../../../../core/services/achievement.servic
 import { UserService } from '../../../../core/services/user.service';
 import { StatsService } from '../../../../core/services/stats.service';
 import { audioService } from '../../../../core/services/AudioService';
+import { NotificationCenterService } from '../../../../core/services/notification-center.service';
 
 describe('Settings', () => {
   let component: Settings;
@@ -69,6 +70,17 @@ describe('Settings', () => {
         { provide: UserService, useValue: userService },
         { provide: StatsService, useValue: { mine: () => of([]) } },
         { provide: AchievementService, useValue: { list: () => of([]) } },
+        {
+          provide: NotificationCenterService,
+          useValue: {
+            items: signal([]),
+            unreadCount: signal(0),
+            start: vi.fn(),
+            markRead: vi.fn(),
+            markAllRead: vi.fn(),
+            clear: vi.fn(),
+          },
+        },
       ],
     }).compileComponents();
 

@@ -7,11 +7,12 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { UserMe } from '../../../../core/models/auth.models';
 import { AudioSettings, audioService } from '../../../../core/services/AudioService';
+import {
+  DEFAULT_NOTIFICATION_PREFS,
+  NOTIFICATION_PREFS_KEY,
+} from '../../../../core/models/notification.models';
 
 type AudioFormValue = { sfxEnabled: boolean; bgmEnabled: boolean; sfxVolume: number; bgmVolume: number };
-type NotificationPrefs = { friendRequests: boolean; matchInvites: boolean; achievements: boolean };
-
-const NOTIFICATION_KEY = 'vs.notificationPrefs';
 
 const DEFAULT_AUDIO_FORM: AudioFormValue = {
   sfxEnabled: true,
@@ -19,12 +20,6 @@ const DEFAULT_AUDIO_FORM: AudioFormValue = {
   sfxVolume: 80,
   bgmVolume: 40,
 };
-const DEFAULT_NOTIFICATIONS: NotificationPrefs = {
-  friendRequests: true,
-  matchInvites: true,
-  achievements: true,
-};
-
 @Component({
   selector: 'app-settings',
   standalone: true,
@@ -63,7 +58,7 @@ export class Settings implements OnInit {
     y: [0, [Validators.min(-50), Validators.max(50)]],
   });
 
-  readonly notificationsForm = this.fb.nonNullable.group(DEFAULT_NOTIFICATIONS);
+  readonly notificationsForm = this.fb.nonNullable.group(DEFAULT_NOTIFICATION_PREFS);
   readonly audioForm = this.fb.nonNullable.group(DEFAULT_AUDIO_FORM);
   readonly deleteForm = this.fb.nonNullable.group({ username: ['', Validators.required] });
 
@@ -98,11 +93,11 @@ export class Settings implements OnInit {
       error: () => this.error.set('No se pudo cargar tu cuenta.'),
     });
 
-    this.notificationsForm.patchValue(this.readPrefs(NOTIFICATION_KEY, DEFAULT_NOTIFICATIONS));
+    this.notificationsForm.patchValue(this.readPrefs(NOTIFICATION_PREFS_KEY, DEFAULT_NOTIFICATION_PREFS));
     this.audioForm.patchValue(this.toAudioForm(audioService.getSettings()), { emitEvent: false });
 
     this.notificationsForm.valueChanges.subscribe((value) =>
-      localStorage.setItem(NOTIFICATION_KEY, JSON.stringify(value))
+      localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(value))
     );
     this.audioForm.valueChanges.subscribe(() => this.applyAudioSettings());
   }

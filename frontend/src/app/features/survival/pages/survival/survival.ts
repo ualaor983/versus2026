@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { GameService } from '../../../../core/services/game.service';
 import { AchievementToastService } from '../../../../core/services/achievement-toast.service';
+import { NotificationCenterService } from '../../../../core/services/notification-center.service';
 import { audioService } from '../../../../core/services/AudioService';
 import {
   QuestionBinary,
@@ -22,6 +23,7 @@ export class Survival implements OnInit, OnDestroy {
   private readonly game = inject(GameService);
   private readonly router = inject(Router);
   private readonly achievementToasts = inject(AchievementToastService);
+  private readonly notifications = inject(NotificationCenterService);
 
   lives  = signal(3);
   streak = signal(0);
@@ -168,6 +170,7 @@ export class Survival implements OnInit, OnDestroy {
     if (res.gameOver) {
       audioService.play('game_over');
       audioService.stopBgm();
+      this.notifications.addAchievements(res.achievementsUnlocked);
       this.achievementToasts.showMany(res.achievementsUnlocked);
       const finalScore = this.score();
       const finalStreak = this.streak();
