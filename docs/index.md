@@ -87,6 +87,7 @@
 - `/settings`: pagina centralizada para editar username, password, avatar, notificaciones, audio y eliminar cuenta.
 - Avatar: galeria predefinida con confirmacion, upload PNG/JPEG con crop basico y limite de 2MB.
 - Topbar: muestra username/avatar reales y XP derivado de `player_stats` hasta tener un campo `xp` dedicado.
+- Centro de notificaciones: campana en topbar con eventos en tiempo real de logros y matchmaking, historial local por usuario y contador de no leidas.
 - Cuenta: soft delete con `status=DELETED`, `is_active=false` y anonimizacion de datos.
 - Logros: catalogo inicial, desbloqueo al terminar partida, toast global, grid en perfil y emblema reciente en el avatar.
 

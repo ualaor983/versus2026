@@ -160,6 +160,7 @@ Respuesta: `204 No Content`. En frontend se exige doble confirmacion escribiendo
 - Password: requiere password actual y confirmacion visual en el formulario.
 - Avatar: galeria de avatares predefinidos con confirmacion `Aceptar/Cancelar`; upload PNG/JPEG con crop basico y boton de subida.
 - Notificaciones: preferencias de solicitudes de amistad, invitaciones y logros guardadas en `localStorage`.
+- Centro de notificaciones: desplegable en el topbar con contador de no leidas, historial local por usuario (`vs.notifications.<userId>`) y acciones de marcar leidas/vaciar.
 - Audio: controles `Efectos de sonido`, `Musica de fondo`, silenciar todo y feedback reducido guardados en `localStorage`.
 - Zona de peligro: borrar cuenta exige escribir el username.
 - Topbar: muestra username/avatar reales y XP calculado desde `/api/stats/me` mientras no exista campo `xp` dedicado.
@@ -320,6 +321,7 @@ Frontend conecta a:  ws://localhost:8080/ws  (STOMP sobre SockJS)
 Auth: header CONNECT  Authorization: Bearer <jwt>
  
 Suscripciones del cliente:
+  /user/queue/achievements   -> logros desbloqueados (ACHIEVEMENT_UNLOCKED)
   /user/queue/match          → notificaciones privadas (MATCH_FOUND)
   /topic/match/{matchId}     → estado compartido del lobby/partida
  
@@ -474,6 +476,7 @@ Si un logro esta bloqueado, el backend devuelve `name: "???"`, `description: "??
 ### Frontend
 
 - Toast global no bloqueante al desbloquear un logro.
+- Centro de notificaciones: registra logros desbloqueados en tiempo real, respeta `vs.notificationPrefs.achievements` y enlaza a `/profile`.
 - Perfil: seccion `Logros` con contador `desbloqueados/total`, grid de catalogo y fecha si esta desbloqueado.
 - Topbar/avatar: muestra como emblema el logro desbloqueado mas reciente.
  
