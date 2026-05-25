@@ -415,13 +415,25 @@ Detalles de la capa de transport (envelope, autenticación, reconexión) en [`do
 7. Tras el countdown                    → emite MATCH_START { matchId, mode }
 8. (PR #91+) lógica de juego: QUESTION / ROUND_RESULT / MATCH_END
 ```
+
+### Flujo de partida privada con código (issue #105)
+
+```
+1. Host: POST /api/matches {mode}              → crea sala y recibe {matchId, roomCode}
+2. Host comparte roomCode                      → código de 6 chars, generado server-side
+3. Invitado: POST /api/matches/join-by-code    → body {roomCode}
+4. Backend normaliza abc-234 → ABC234          → valida formato y estado WAITING
+5. Invitado recibe LobbyStateDto               → frontend redirige a /play/lobby/:matchId
+6. Ambos usan el mismo flujo de ready/countdown que matchmaking
+```
  
-### Endpoints REST de sala (PR #90)
+### Endpoints REST de sala (PR #90, #105)
  
 | Método | Ruta | Descripción | Issues |
 |--------|------|-------------|--------|
 | `POST` | `/api/matches` | Crear sala privada (devuelve `roomCode`) | #90 |
 | `POST` | `/api/matches/{id}/join` | Unirse a sala existente | #90 |
+| `POST` | `/api/matches/join-by-code` | Unirse a sala privada con `{ roomCode }` | #105 |
 | `DELETE` | `/api/matches/{id}/abandon` | Abandonar la sala | #90 |
 | `GET` | `/api/matches/{id}/lobby` | Snapshot del estado del lobby | #90 |
 | `POST` | `/api/matchmaking/queue` | Entrar en cola de matchmaking | #90 |

@@ -566,6 +566,99 @@ class MatchServiceTest {
     }
 
     // ═══════════════════════════════════════════════════════════════════════
+    // joinByRoomCode
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @DisplayName("joinByRoomCode")
+    @Nested
+    class JoinByRoomCode {
+
+        @DisplayName("Normaliza el código y añade al jugador a la sala")
+        @Test
+        void normalizaCodigo_yUneJugador() {
+            stubMatchSave();
+            User owner = user("owner");
+            User guest = user("guest");
+            when(userRepository.findById(owner.getId())).thenReturn(Optional.of(owner));
+            when(userRepository.findById(guest.getId())).thenReturn(Optional.of(guest));
+
+            LiveMatchState state = matchService.createMatch(GameMode.BINARY_DUEL, owner.getId());
+            matchService.addPlayer(state.getMatchId(), owner.getId());
+            Match persisted = Match.builder()
+                    .id(state.getMatchId())
+                    .mode(GameMode.BINARY_DUEL)
+                    .status(MatchStatus.WAITING)
+                    .roomCode(state.getRoomCode())
+                    .createdAt(Instant.now())
+                    .build();
+            when(matchRepository.findByRoomCode(state.getRoomCode())).thenReturn(Optional.of(persisted));
+
+            String formattedCode = state.getRoomCode().substring(0, 3).toLowerCase()
+                    + "-" + state.getRoomCode().substring(3).toLowerCase();
+            LiveMatchState result = matchService.joinByRoomCode(formattedCode, guest.getId());
+
+            assertThat(result.getMatchId()).isEqualTo(state.getMatchId());
+            assertThat(result.getPlayers()).containsKey(guest.getId());
+        }
+
+        @DisplayName("Código con formato inválido lanza VALIDATION_ERROR")
+        @Test
+        void codigoInvalido_lanzaValidationError() {
+            assertThatThrownBy(() -> matchService.joinByRoomCode("abc", UUID.randomUUID()))
+                    .isInstanceOf(ApiException.class)
+                    .satisfies(e -> assertThat(((ApiException) e).getCode())
+                            .isEqualTo(ErrorCode.VALIDATION_ERROR));
+        }
+
+        @DisplayName("Código válido inexistente lanza NOT_FOUND")
+        @Test
+        void codigoInexistente_lanzaNotFound() {
+            when(matchRepository.findByRoomCode("ABC234")).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> matchService.joinByRoomCode("ABC234", UUID.randomUUID()))
+                    .isInstanceOf(ApiException.class)
+                    .satisfies(e -> assertThat(((ApiException) e).getCode())
+                            .isEqualTo(ErrorCode.NOT_FOUND));
+        }
+
+        @DisplayName("Sala no WAITING lanza CONFLICT")
+        @Test
+        void salaNoWaiting_lanzaConflict() {
+            Match persisted = Match.builder()
+                    .id(UUID.randomUUID())
+                    .mode(GameMode.BINARY_DUEL)
+                    .status(MatchStatus.IN_PROGRESS)
+                    .roomCode("ABC234")
+                    .createdAt(Instant.now())
+                    .build();
+            when(matchRepository.findByRoomCode("ABC234")).thenReturn(Optional.of(persisted));
+
+            assertThatThrownBy(() -> matchService.joinByRoomCode("ABC234", UUID.randomUUID()))
+                    .isInstanceOf(ApiException.class)
+                    .satisfies(e -> assertThat(((ApiException) e).getCode())
+                            .isEqualTo(ErrorCode.CONFLICT));
+        }
+
+        @DisplayName("Sala persistida pero no viva en memoria lanza NOT_FOUND")
+        @Test
+        void salaSinEstadoLive_lanzaNotFound() {
+            Match persisted = Match.builder()
+                    .id(UUID.randomUUID())
+                    .mode(GameMode.BINARY_DUEL)
+                    .status(MatchStatus.WAITING)
+                    .roomCode("ABC234")
+                    .createdAt(Instant.now())
+                    .build();
+            when(matchRepository.findByRoomCode("ABC234")).thenReturn(Optional.of(persisted));
+
+            assertThatThrownBy(() -> matchService.joinByRoomCode("ABC234", UUID.randomUUID()))
+                    .isInstanceOf(ApiException.class)
+                    .satisfies(e -> assertThat(((ApiException) e).getCode())
+                            .isEqualTo(ErrorCode.NOT_FOUND));
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
     // markReady
     // ═══════════════════════════════════════════════════════════════════════
 
