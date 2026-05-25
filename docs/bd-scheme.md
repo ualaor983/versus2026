@@ -52,7 +52,7 @@ erDiagram
     uuid id PK
     enum mode
     enum status
-    string room_code
+    string room_code UK
     uuid owner_user_id
     timestamp created_at
     timestamp finished_at
@@ -202,6 +202,7 @@ erDiagram
 | `match_players.current_streak`, `best_streak_in_match`, `rounds_played` | Estado de partida singleplayer (Survival/Precision). |
 | `match_answers.is_correct` | Permite filtros y stats sin recalcular desviación. |
 | `matches.owner_user_id` | Identifica al dueño/host (singleplayer = único jugador). |
+| `matches.room_code` UNIQUE | Código de 6 caracteres para invitar a una partida privada (#105). Es nullable para mantener compatibilidad con partidas que no lo necesiten. |
 | Nuevas tablas `achievements` y `user_achievements` | Catalogo de logros y desbloqueos unicos por usuario. |
 
 
@@ -229,6 +230,7 @@ erDiagram
 - `questions(status, type, category)` compuesto (filtro frecuente para `/api/questions/random`).
 - `questions(text_hash)` UNIQUE (deduplicación del pipeline Scrapy).
 - `rankings(mode, score DESC)`.
+- `matches(room_code)` UNIQUE.
 - `matchmaking_queue(mode, entered_at)`.
 - `match_rounds(match_id)`, `match_answers(round_id)`, `match_answers(user_id)`.
 - `refresh_tokens(user_id)`, `refresh_tokens(token_hash)`.
