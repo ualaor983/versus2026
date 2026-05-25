@@ -10,7 +10,7 @@ import type { NotificationItem } from '../../../../core/models/notification.mode
 import { NotificationCenterService } from '../../../../core/services/notification-center.service';
 
 
-export type NavKey = 'home' | 'play' | 'ranking' | 'profile' | 'settings' | 'admin' | 'users' | 'spiders' | 'reports';
+export type NavKey = 'home' | 'play' | 'ranking' | 'friends' | 'profile' | 'settings' | 'admin' | 'users' | 'spiders' | 'reports';
 export type TopbarUser = { name: string; xp: number; avatarUrl?: string | null };
 
 @Component({
@@ -48,13 +48,14 @@ export class TopbarComponent implements OnInit {
   items = computed<[NavKey, string][]>(() =>
     this.role() === 'admin'
       ? [['admin', 'Resumen'], ['users', 'Usuarios'], ['spiders', 'Spiders'], ['reports', 'Moderación']]
-      : [['home', 'Inicio'], ['play', 'Jugar'], ['ranking', 'Ranking'], ['profile', 'Perfil']]
+      : [['home', 'Inicio'], ['play', 'Jugar'], ['ranking', 'Ranking'], ['friends', 'Amigos'], ['profile', 'Perfil']]
   );
 
   private routes: Record<NavKey, string | null> = {
     home: '/dashboard',
     play: '/play/select',
     ranking: null,
+    friends: '/friends',
     profile: '/profile',
     settings: '/settings',
     admin: '/admin/dashboard',
@@ -156,6 +157,8 @@ export class TopbarComponent implements OnInit {
   notificationIcon(notification: NotificationItem): string {
     if (notification.type === 'ACHIEVEMENT_UNLOCKED') return 'OK';
     if (notification.type === 'MATCH_FOUND') return 'VS';
+    if (notification.type === 'FRIEND_REQUEST') return 'F';
+    if (notification.type === 'MATCH_INVITE') return 'I';
     if (notification.tone === 'danger') return '!';
     return 'i';
   }

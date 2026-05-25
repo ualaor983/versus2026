@@ -3,6 +3,11 @@ import { Subscription } from 'rxjs';
 import type { Achievement, AchievementUnlockedEvent } from '../models/achievement.models';
 import { MODE_LABELS } from '../models/match.models';
 import type { MatchFoundPayload } from '../models/match.models';
+import type {
+  FriendRequestEvent,
+  MatchInviteEvent,
+  SocialEvent,
+} from '../models/social.models';
 import {
   DEFAULT_NOTIFICATION_PREFS,
   NOTIFICATION_PREFS_KEY,
@@ -51,6 +56,11 @@ export class NotificationCenterService {
       this.ws
         .subscribe<MatchEvent<unknown>>('/user/queue/match')
         .subscribe((event) => this.handleMatch(event)),
+    );
+    this.subscriptions.add(
+      this.ws
+        .subscribe<SocialEvent<unknown>>('/user/queue/social')
+        .subscribe((event) => this.handleSocial(event)),
     );
     this.started = true;
   }
@@ -110,6 +120,40 @@ export class NotificationCenterService {
       tone: 'info',
       route: `/play/lobby/${event.matchId}`,
       sourceId: `match-found:${event.matchId}`,
+    });
+  }
+
+  private handleSocial(event: SocialEvent<unknown>): void {
+    if (event.type === 'FRIEND_REQUEST') {
+      this.handleFriendRequest(event.payload as FriendRequestEvent);
+    }
+    if (event.type === 'MATCH_INVITE') {
+      this.handleMatchInvite(event.payload as MatchInviteEvent);
+    }
+  }
+
+  private handleFriendRequest(payload: FriendRequestEvent): void {
+    if (!this.readPrefs().friendRequests) return;
+    this.add({
+      type: 'FRIEND_REQUEST',
+      title: 'Solicitud de amistad',
+      message: `${payload.from.username} quiere agregarte.`,
+      tone: 'info',
+      route: '/friends',
+      sourceId: `friend-request:${payload.requestId}`,
+    });
+  }
+
+  private handleMatchInvite(payload: MatchInviteEvent): void {
+    if (!this.readPrefs().matchInvites) return;
+    const mode = MODE_LABELS[payload.mode] ?? payload.mode;
+    this.add({
+      type: 'MATCH_INVITE',
+      title: 'Invitacion a partida',
+      message: `${payload.from.username} te invita a ${mode}.`,
+      tone: 'warning',
+      route: '/friends',
+      sourceId: `match-invite:${payload.inviteId}`,
     });
   }
 

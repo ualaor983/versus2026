@@ -154,6 +154,7 @@ Si el token falta, no es Bearer, está caducado, está firmado con otra clave o 
 | `/app/*` | Mensajes que el **cliente envía al servidor** (despacha a `@MessageMapping`). | `/app/match/answer`, `/app/match/ready` |
 | `/topic/*` | Broadcast a todos los suscriptores. | `/topic/match/{matchId}` (estado compartido) |
 | `/user/queue/achievements` | Mensaje privado de logros desbloqueados para el usuario autenticado. | `ACHIEVEMENT_UNLOCKED` |
+| `/user/queue/social` | Mensaje privado de solicitudes de amistad e invitaciones a partida. | `FRIEND_REQUEST`, `MATCH_INVITE` |
 | `/user/queue/*` | Mensaje **privado** dirigido a un usuario concreto. Spring resuelve `{userId}` desde el `Principal` autenticado. | `/user/queue/match` (notificaciones tipo "te tocó pareja") |
 
 Reglas:
@@ -217,6 +218,7 @@ URL base configurable en `frontend/src/environments/environment.ts → wsUrl`.
 |---|---|---|
 | `/user/queue/match` | `MatchEventEnvelope<MATCH_FOUND>` | Crea una notificacion "Rival encontrado" y enlaza a `/play/lobby/:matchId`. |
 | `/user/queue/achievements` | `{ type: "ACHIEVEMENT_UNLOCKED", achievement }` | Crea una notificacion de logro y enlaza a `/profile`. |
+| `/user/queue/social` | `{ type: "FRIEND_REQUEST" | "MATCH_INVITE", payload }` | Crea notificaciones sociales y enlaza a `/friends`. |
 
 El cliente persiste el historial en `localStorage` por usuario (`vs.notifications.<userId>`) y limita el listado a 30 elementos. Las preferencias de `/settings` se leen de `vs.notificationPrefs`; `matchInvites=false` bloquea eventos `MATCH_FOUND` y `achievements=false` bloquea entradas/toasts de logros.
 
