@@ -84,11 +84,13 @@ export class AdminUsers implements OnInit {
   }
 
   roleColor(r: Role): string {
-    return { ADMIN: 'var(--vs-accent-red)', MODERATOR: 'var(--vs-accent-gold)' }[r] ?? 'var(--vs-accent-blue)';
+    const colors: Partial<Record<Role, string>> = { ADMIN: 'var(--vs-accent-red)', MODERATOR: 'var(--vs-accent-gold)' };
+    return colors[r] ?? 'var(--vs-accent-blue)';
   }
 
   roleBg(r: Role): string {
-    return { ADMIN: 'rgba(230,57,70,0.12)', MODERATOR: 'rgba(244,197,66,0.12)' }[r] ?? 'rgba(67,97,238,0.12)';
+    const bgs: Partial<Record<Role, string>> = { ADMIN: 'rgba(230,57,70,0.12)', MODERATOR: 'rgba(244,197,66,0.12)' };
+    return bgs[r] ?? 'rgba(67,97,238,0.12)';
   }
 
   initials(name: string): string { return name.slice(0, 2).toUpperCase(); }

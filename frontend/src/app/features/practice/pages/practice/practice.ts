@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { QuestionService } from '../../../../core/services/question.service';
 import { PracticeService } from '../../../../core/services/practice.service';
 import {

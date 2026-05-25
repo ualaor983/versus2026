@@ -94,7 +94,7 @@ export class TopbarComponent implements OnInit {
       error: () => {},
     });
     this.statsApi.mine().subscribe({
-      next: (list) => this.stats.set(list ?? []),
+      next: (list) => this.stats.set(list?.byMode ?? []),
       error: () => this.stats.set([]),
     });
     this.achievementsApi.list().subscribe({
