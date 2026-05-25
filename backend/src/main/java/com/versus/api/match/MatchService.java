@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class MatchService {
 
     private static final int MAX_PAGE_SIZE = 50;
+    private static final Pattern ROOM_CODE_PATTERN = Pattern.compile("^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$");
     private static final char[] CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
     private static final SecureRandom RNG = new SecureRandom();
 
@@ -214,6 +217,20 @@ public class MatchService {
         }
     }
 
+    @Transactional
+    public LiveMatchState joinByRoomCode(String roomCode, UUID userId) {
+        String normalizedCode = normalizeRoomCode(roomCode);
+        Match persisted = matchRepository.findByRoomCode(normalizedCode)
+                .orElseThrow(() -> ApiException.notFound("Room code not found"));
+        if (persisted.getStatus() != MatchStatus.WAITING) {
+            throw ApiException.conflict("Match is not accepting players");
+        }
+        if (!liveMatches.containsKey(persisted.getId())) {
+            throw ApiException.notFound("Room not found or already closed");
+        }
+        return addPlayer(persisted.getId(), userId);
+    }
+
     public void markReady(UUID matchId, UUID userId, boolean ready) {
         LiveMatchState state = requireLive(matchId);
         synchronized (state) {
@@ -337,6 +354,17 @@ public class MatchService {
         for (int i = 0; i < 6; i++)
             sb.append(CODE_CHARS[RNG.nextInt(CODE_CHARS.length)]);
         return sb.toString();
+    }
+
+    private String normalizeRoomCode(String roomCode) {
+        if (roomCode == null) {
+            throw ApiException.validation("Room code is required");
+        }
+        String code = roomCode.toUpperCase(Locale.ROOT).replaceAll("[\\s-]", "");
+        if (!ROOM_CODE_PATTERN.matcher(code).matches()) {
+            throw ApiException.validation("Invalid room code");
+        }
+        return code;
     }
 
     Map<UUID, LiveMatchState> liveMatchesView() {
