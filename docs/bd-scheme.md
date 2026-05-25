@@ -58,6 +58,33 @@ erDiagram
     timestamp finished_at
   }
 
+  friendships {
+    uuid id PK
+    uuid user_low_id FK
+    uuid user_high_id FK
+    timestamp created_at
+  }
+
+  friend_requests {
+    uuid id PK
+    uuid requester_id FK
+    uuid addressee_id FK
+    enum status
+    timestamp created_at
+    timestamp responded_at
+  }
+
+  match_invites {
+    uuid id PK
+    uuid match_id FK
+    uuid from_user_id FK
+    uuid to_user_id FK
+    enum mode
+    enum status
+    timestamp created_at
+    timestamp responded_at
+  }
+
   match_players {
     uuid match_id PK,FK
     uuid user_id PK,FK
@@ -163,7 +190,11 @@ erDiagram
 
   users ||--o{ refresh_tokens : "tiene"
   users ||--o{ match_players : "juega en"
+  users ||--o{ friendships : "forma parte"
+  users ||--o{ friend_requests : "solicita"
+  users ||--o{ match_invites : "invita"
   matches ||--o{ match_players : "tiene"
+  matches ||--o{ match_invites : "recibe"
   matches ||--o{ match_rounds : "contiene"
   questions ||--o{ match_rounds : "aparece en"
   questions ||--o{ question_options : "tiene"
@@ -223,6 +254,14 @@ erDiagram
 |---|---|
 | `questions.text_hash VARCHAR(64) UNIQUE` | Deduplicación idempotente en el pipeline Scrapy: SHA-256 del texto de la pregunta. Permite ejecutar el mismo spider varias veces sin crear duplicados. |
 
+## Cambios introducidos en issue #94 (Social)
+
+| Cambio | Motivo |
+|---|---|
+| Nueva tabla `friendships` | Relación aceptada entre dos usuarios con par ordenado único. |
+| Nueva tabla `friend_requests` | Solicitudes de amistad pendientes, aceptadas, rechazadas o canceladas. |
+| Nueva tabla `match_invites` | Invitaciones a lobbies multijugador entre amigos. |
+
 ## Índices
 
 - `users(email)` UNIQUE, `users(username)` UNIQUE.
@@ -234,6 +273,9 @@ erDiagram
 - `refresh_tokens(user_id)`, `refresh_tokens(token_hash)`.
 - `achievements(achievement_key)` UNIQUE, `achievements(category)`.
 - `user_achievements(user_id, achievement_id)` PK compuesta.
+- `friendships(user_low_id, user_high_id)` UNIQUE y búsquedas por ambos lados.
+- `friend_requests(addressee_id, status, created_at)`, `friend_requests(requester_id, status, created_at)`.
+- `match_invites(to_user_id, status, created_at)`, `match_invites(from_user_id, created_at)`, `match_invites(match_id)`.
 
 Por si no se visualiza bien, también se presentan las imágenes del esquema:
 

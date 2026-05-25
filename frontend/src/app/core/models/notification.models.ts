@@ -3,6 +3,8 @@ export type NotificationTone = 'info' | 'success' | 'warning' | 'danger';
 export type NotificationType =
   | 'ACHIEVEMENT_UNLOCKED'
   | 'MATCH_FOUND'
+  | 'FRIEND_REQUEST'
+  | 'MATCH_INVITE'
   | 'SYSTEM';
 
 export interface NotificationItem {

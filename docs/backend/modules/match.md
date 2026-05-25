@@ -16,7 +16,7 @@ Define el ciclo de vida completo de una partida multijugador: creación de la sa
 
 - Emisión de preguntas y evaluación de respuestas (PR #91 en adelante).
 - Persistencia de `match_rounds` / `match_answers` (sucede en `endMatch`, lógica futura).
-- Salas privadas con `roomCode` para invitar amigos (issue #105).
+- Entrada por código de sala privado (issue #105). Las invitaciones entre amigos viven en el módulo [`social`](social.md) (issue #94).
 
 ---
 
@@ -485,5 +485,5 @@ Los handlers concretos (`MatchWebSocketController`) se añaden a este módulo en
 ## Trabajo pendiente (PRs siguientes)
 
 - ✅ **PRs #91/#92/#93** (Sprint 4): la lógica de los 3 modos multijugador vive en el módulo [`duel`](duel.md). `MatchService.startMatch()` publica `MatchStartedEvent` y el `DuelOrchestrator` toma el relevo.
-- **Salas privadas con `roomCode`:** issue #105, fuera del Sprint 4.
+- **Entrada por código de sala privado:** issue #105, fuera del Sprint 4. Las invitaciones entre amigos se documentan en [`social.md`](social.md).
 - **Persistencia del runtime para sobrevivir reinicios** (Redis): seguimiento futuro; ver [`duel.md`](duel.md#trabajo-de-follow-up-fuera-del-sprint-4).

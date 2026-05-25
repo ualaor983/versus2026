@@ -18,14 +18,14 @@ Un juego de preguntas multijugador con **5 modos de juego**. Las preguntas se ex
  
 ## 🗺️ Módulos del sistema
  
-El proyecto se divide en **9 módulos**. Cada issue pertenece a uno.
+El proyecto se divide en **10 módulos**. Cada issue pertenece a uno.
  
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                        VERSUS                           │
 │                                                         │
-│  [AUTH]  [USERS]  [QUESTIONS]  [GAME]  [MATCH]         │
-│  [STATS]  [ACHIEVEMENTS]  [SCRAPING]  [ADMIN]          │
+│  [AUTH]  [USERS]  [SOCIAL]  [QUESTIONS]  [GAME]        │
+│  [MATCH]  [STATS]  [ACHIEVEMENTS]  [SCRAPING] [ADMIN]  │
 └─────────────────────────────────────────────────────────┘
 ```
  
@@ -165,6 +165,73 @@ Respuesta: `204 No Content`. En frontend se exige doble confirmacion escribiendo
 - Zona de peligro: borrar cuenta exige escribir el username.
 - Topbar: muestra username/avatar reales y XP calculado desde `/api/stats/me` mientras no exista campo `xp` dedicado.
  
+---
+
+## 🤝 Módulo SOCIAL — AMIGOS E INVITACIONES
+> Issue: #94
+
+Gestiona busqueda de jugadores, solicitudes de amistad e invitaciones a partidas PvP entre amigos.
+
+### Endpoints
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `GET` | `/api/social/users/search?query=ra` | Busca usuarios activos por username. Devuelve máximo 10 resultados. |
+| `GET` | `/api/social/friends` | Lista de amigos del usuario autenticado. |
+| `POST` | `/api/social/friend-requests` | Envía solicitud de amistad a `{ toUserId }`. |
+| `GET` | `/api/social/friend-requests/incoming` | Solicitudes recibidas pendientes. |
+| `GET` | `/api/social/friend-requests/outgoing` | Solicitudes enviadas pendientes. |
+| `POST` | `/api/social/friend-requests/{id}/accept` | Acepta una solicitud recibida. |
+| `POST` | `/api/social/friend-requests/{id}/decline` | Rechaza una solicitud recibida. |
+| `DELETE` | `/api/social/friend-requests/{id}` | Cancela una solicitud enviada. |
+| `POST` | `/api/social/match-invites` | Crea lobby PvP e invita a `{ friendUserId, mode }`. |
+| `GET` | `/api/social/match-invites/incoming` | Invitaciones recibidas pendientes. |
+| `GET` | `/api/social/match-invites/outgoing` | Invitaciones enviadas recientes. |
+| `POST` | `/api/social/match-invites/{id}/accept` | Acepta invitación y devuelve `LobbyStateDto`. |
+| `POST` | `/api/social/match-invites/{id}/decline` | Rechaza invitación recibida. |
+
+### Contratos principales
+
+```json
+POST /api/social/friend-requests
+{ "toUserId": "uuid" }
+```
+
+```json
+{
+  "id": "uuid",
+  "requester": { "userId": "uuid", "username": "Player1", "avatarUrl": null, "relation": "REQUEST_SENT" },
+  "addressee": { "userId": "uuid", "username": "Player2", "avatarUrl": null, "relation": "REQUEST_RECEIVED" },
+  "status": "PENDING",
+  "createdAt": "2026-05-25T18:00:00Z",
+  "respondedAt": null
+}
+```
+
+```json
+POST /api/social/match-invites
+{ "friendUserId": "uuid", "mode": "BINARY_DUEL" }
+```
+
+`mode` debe ser multijugador: `BINARY_DUEL`, `PRECISION_DUEL` o `SABOTAGE`.
+
+### Eventos WebSocket
+
+El cliente se suscribe a `/user/queue/social`.
+
+| Evento | Payload |
+|--------|---------|
+| `FRIEND_REQUEST` | `{ requestId, from: SocialUser }` |
+| `MATCH_INVITE` | `{ inviteId, matchId, mode, from: SocialUser }` |
+
+`SocialUser = { userId, username, avatarUrl, relation }`, con `relation` en `SELF | NONE | FRIEND | REQUEST_SENT | REQUEST_RECEIVED`.
+
+### Frontend
+
+- Ruta `/friends` bajo `authGuard`.
+- `SocialService` centraliza llamadas REST.
+- `NotificationCenterService` escucha `/user/queue/social`, respeta `friendRequests` y `matchInvites` en `vs.notificationPrefs`, y enlaza a `/friends`.
+
 ---
 
 ## ❓ Módulo 3 — QUESTIONS
@@ -323,6 +390,7 @@ Auth: header CONNECT  Authorization: Bearer <jwt>
 Suscripciones del cliente:
   /user/queue/achievements   -> logros desbloqueados (ACHIEVEMENT_UNLOCKED)
   /user/queue/match          → notificaciones privadas (MATCH_FOUND)
+  /user/queue/social         → solicitudes de amistad e invitaciones (FRIEND_REQUEST, MATCH_INVITE)
   /topic/match/{matchId}     → estado compartido del lobby/partida
  
 Envíos del cliente:

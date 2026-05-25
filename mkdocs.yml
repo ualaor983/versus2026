@@ -72,6 +72,7 @@ nav:
       - Preguntas: backend/modules/questions.md
       - Juego singleplayer: backend/modules/game.md
       - Partidas & matchmaking: backend/modules/match.md
+      - Social: backend/modules/social.md
       - Estadísticas: backend/modules/stats.md
       - Moderación: backend/modules/moderation.md
       - Scraping: backend/modules/scraping.md

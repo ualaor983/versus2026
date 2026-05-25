@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     Optional<User> findByVerificationToken(String verificationToken);
     Optional<User> findByPasswordResetToken(String passwordResetToken);
     long countByIsActive(boolean isActive);
+    Page<User> findByUsernameContainingIgnoreCaseAndIsActiveTrue(String username, Pageable pageable);
 
     @Query("""
             SELECT u FROM User u
