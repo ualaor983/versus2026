@@ -105,6 +105,11 @@ Ficheros principales:
 | `core/services/notification-center.service.ts` | Suscripciones STOMP, normalizacion de eventos, persistencia local y estado de lectura. |
 | `shared/components/layout/topbar/*` | Boton de campana, contador, panel desplegable y acciones de lectura. |
 
+Contrato de layout:
+
+- La campana de notificaciones y el menu de usuario deben renderizarse dentro de `vs-topbar__actions`.
+- `vs-topbar__actions` es un grupo flex horizontal; evita colocar la campana fuera de este contenedor porque el contador y el panel se anclan al `vs-notification-center`.
+
 Canales consumidos:
 
 | Canal | Evento | Resultado en UI |
