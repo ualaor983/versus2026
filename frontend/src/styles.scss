@@ -284,6 +284,13 @@ html, body {
     }
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
   &__user {
     display: flex;
     align-items: center;
@@ -366,12 +373,6 @@ html, body {
     }
 
     &:disabled { opacity: 0.6; cursor: default; }
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
   }
 }
 
