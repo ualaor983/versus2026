@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { AvatarComponent } from '../../../../shared/components/ui/avatar/avatar.component';
 
 export type AdminNavKey =
   | 'dash'
@@ -22,7 +23,7 @@ const ROUTES: Partial<Record<AdminNavKey, string>> = {
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, AvatarComponent],
   templateUrl: './sidebar.html',
 })
 export class AdminSidebarComponent {
@@ -66,7 +67,4 @@ export class AdminSidebarComponent {
     if (r) this.router.navigate([r]);
   }
 
-  initials(name: string): string {
-    return name.slice(0, 2).toUpperCase();
-  }
 }

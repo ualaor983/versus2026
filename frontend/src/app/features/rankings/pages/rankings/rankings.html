@@ -65,13 +65,7 @@
                 <td class="vs-mono vs-rankings__rank">#{{ entry.rank }}</td>
                 <td>
                   <div class="vs-user-cell">
-                    <div class="vs-avatar">
-                      @if (entry.avatarUrl) {
-                        <img [src]="entry.avatarUrl" alt="" />
-                      } @else {
-                        {{ initials(entry) }}
-                      }
-                    </div>
+                    <vs-avatar [name]="entry.username" [avatarUrl]="entry.avatarUrl" />
                     <div>
                       <div class="vs-rankings__name">
                         {{ entry.username }}
