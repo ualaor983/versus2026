@@ -60,6 +60,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/player/pages/friends/friends').then(m => m.Friends),
   },
   {
+    path: 'players/:userId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/player/pages/player-profile/player-profile').then(m => m.PlayerProfile),
+  },
+  {
     path: 'play',
     canActivate: [authGuard],
     children: [
