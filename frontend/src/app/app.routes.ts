@@ -10,6 +10,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/landing/pages/landing/landing').then(m => m.Landing),
   },
   {
+    path: 'equipo',
+    loadComponent: () => import('./features/landing/pages/equipo/equipo').then(m => m.Equipo),
+  },
+  {
+    path: 'privacidad',
+    loadComponent: () => import('./features/landing/pages/privacidad/privacidad').then(m => m.Privacidad),
+  },
+  {
     path: 'rankings',
     loadComponent: () => import('./features/rankings/pages/rankings/rankings').then(m => m.Rankings),
   },
