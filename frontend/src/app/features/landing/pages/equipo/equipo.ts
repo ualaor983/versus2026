@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 interface TeamMember {
   name: string;
   handle: string;
+  githubUrl: string;
+  avatarUrl: string;
   role: string;
   focus: string;
   color: string;
@@ -27,61 +29,69 @@ export class Equipo {
   ];
 
   readonly members: TeamMember[] = [
-    {
+    this.member({
       name: 'Raúl Martínez Gutiérrez',
       handle: 'ualrmg429',
       role: 'Backend Lead',
       focus: 'Spring Boot · PostgreSQL · WebSockets',
       color: 'blue',
       initials: 'RM',
-    },
-    {
-      name: 'Alejandro O. R.',
+    }),
+    this.member({
+      name: 'Alejandro Ortega Ramón',
       handle: 'ualaor983',
       role: 'Frontend',
       focus: 'Angular · UI/UX · Animaciones',
       color: 'red',
       initials: 'AO',
-    },
-    {
-      name: 'B. R. L.',
+    }),
+    this.member({
+      name: 'Bruno Ramirez Ledesma',
       handle: 'ualbrl973',
       role: 'Frontend',
       focus: 'Angular · Componentes · Integración',
       color: 'gold',
       initials: 'BR',
-    },
-    {
+    }),
+    this.member({
       name: 'Adrián Martínez Granados',
       handle: 'ualamg538',
       role: 'Backend',
       focus: 'API REST · Autenticación · JPA',
       color: 'purple',
       initials: 'AM',
-    },
-    {
+    }),
+    this.member({
       name: 'Andrés Ruiz Andújar',
       handle: 'UALara584',
       role: 'Backend',
       focus: 'Lógica de juego · Rankings · ELO',
       color: 'green',
       initials: 'AR',
-    },
-    {
+    }),
+    this.member({
       name: 'Ilyas El Hamdi',
       handle: 'ilyas2022',
       role: 'Scraping',
       focus: 'Scrapy · Pipelines · Datos reales',
       color: 'blue',
       initials: 'IE',
-    },
-    {
+    }),
+    this.member({
       name: 'Sergio Gómez Vico',
       handle: 'ualsgv396',
       role: 'QA · DevOps',
       focus: 'Docker · CI/CD · Testing',
       color: 'red',
       initials: 'SG',
-    },
+    }),
   ];
+
+  private member(member: Omit<TeamMember, 'githubUrl' | 'avatarUrl'>): TeamMember {
+    return {
+      ...member,
+      githubUrl: `https://github.com/${member.handle}`,
+      avatarUrl: `https://github.com/${member.handle}.png?size=128`,
+    };
+  }
 }

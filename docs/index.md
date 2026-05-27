@@ -37,9 +37,9 @@
 
 -   :material-language-typescript: **Frontend**
 
-    Arquitectura Angular, gestión de estado con signals y guía de testing.
+    Arquitectura Angular, páginas públicas, gestión de estado con signals y guía de testing.
 
-    [:octicons-arrow-right-24: Arquitectura](frontend/arquitectura.md) · [Testing](frontend/testing.md)
+    [:octicons-arrow-right-24: Arquitectura](frontend/arquitectura.md) · [Páginas públicas](frontend/paginas-publicas.md) · [Testing](frontend/testing.md)
 
 -   :material-database: **Base de datos**
 

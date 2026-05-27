@@ -174,3 +174,48 @@
     margin: 0;
   }
 }
+
+@media (max-width: 900px) {
+  .vs-page__header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .vs-page__title {
+    font-size: 52px;
+  }
+
+  .vs-privacy__layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 36px 20px 56px;
+  }
+
+  .vs-privacy__toc {
+    position: static;
+    padding-right: 0;
+  }
+
+  .vs-privacy__toc-link {
+    padding-left: 0;
+  }
+
+  .vs-privacy__main {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .vs-page__topbar {
+    gap: 12px;
+  }
+
+  .vs-page__title {
+    font-size: 42px;
+  }
+
+  .vs-privacy__section-title {
+    font-size: 20px;
+  }
+}
