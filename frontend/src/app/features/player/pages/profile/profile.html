@@ -25,267 +25,266 @@
       </div>
     </div>
 
-    <!-- Columnas -->
-    <div class="vs-profile__cols">
+    <!-- Tabs -->
+    <div class="vs-profile__tabs" role="tablist">
+      <button class="vs-profile-tab" role="tab" [class.vs-profile-tab--active]="activeTab() === 'overview'" (click)="setTab('overview')">Resumen</button>
+      <button class="vs-profile-tab" role="tab" [class.vs-profile-tab--active]="activeTab() === 'stats'" (click)="setTab('stats')">Estadísticas</button>
+      <button class="vs-profile-tab" role="tab" [class.vs-profile-tab--active]="activeTab() === 'history'" (click)="setTab('history')">Historial</button>
+      <button class="vs-profile-tab" role="tab" [class.vs-profile-tab--active]="activeTab() === 'achievements'" (click)="setTab('achievements')">Logros</button>
+      <button class="vs-profile-tab" role="tab" [class.vs-profile-tab--active]="activeTab() === 'contribute'" (click)="setTab('contribute')">Contribuir</button>
+    </div>
 
-      <!-- Columna izquierda: estadísticas -->
-      <div class="vs-profile__left">
+    <!-- Contenido de la tab activa -->
+    <div class="vs-profile__panel">
 
-        <!-- Singleplayer -->
-        <div>
-          <div class="vs-section-title">Singleplayer</div>
-          <div class="vs-card" style="padding: 0">
-            <table class="vs-table">
-              <thead>
-                <tr>
-                  <th>Modo</th><th>Partidas</th><th>Victorias</th><th>% Acierto</th><th>Mejor racha</th><th>Punt. media</th><th>Desv. media</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (s of singleplayerStats(); track s.mode) {
-                  <tr>
-                    <td style="font-weight: 600">{{ s.mode }}</td>
-                    <td class="vs-mono">{{ s.games }}</td>
-                    <td class="vs-mono">{{ s.wins }}</td>
-                    <td class="vs-mono" style="color: var(--vs-accent-green)">{{ s.acc }}</td>
-                    <td class="vs-mono" style="color: var(--vs-accent-gold)">{{ s.best }}</td>
-                    <td class="vs-mono">{{ s.avgScore }}</td>
-                    <td class="vs-mono" style="color: var(--vs-text-muted)">{{ s.avgDev }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
+      @switch (activeTab()) {
 
-        <!-- Multijugador -->
-        <div>
-          <div class="vs-section-title">Multijugador</div>
-          <div class="vs-card" style="padding: 0">
-            <table class="vs-table">
-              <thead>
-                <tr>
-                  <th>Modo</th><th>Partidas</th><th>Victorias</th><th>% Acierto</th><th>Mejor racha</th><th>Punt. media</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (s of multiplayerStats(); track s.mode) {
-                  <tr>
-                    <td style="font-weight: 600">{{ s.mode }}</td>
-                    <td class="vs-mono">{{ s.games }}</td>
-                    <td class="vs-mono">{{ s.wins }}</td>
-                    <td class="vs-mono" style="color: var(--vs-accent-green)">{{ s.acc }}</td>
-                    <td class="vs-mono" style="color: var(--vs-accent-gold)">{{ s.best }}</td>
-                    <td class="vs-mono">{{ s.avgScore }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Competitive / Rankings -->
-        <div>
-          <div class="vs-section-title">Competitive / Rankings</div>
-          <div class="vs-card vs-competitive-card">
-            @if (competitiveLoading()) {
-              <div class="vs-competitive-empty">Cargando ranking competitivo...</div>
-            } @else if (competitiveRows().length === 0) {
-              <div class="vs-competitive-empty">Aun no hay datos competitivos.</div>
-            } @else {
-              @for (row of competitiveRows(); track row.mode) {
-                <div class="vs-competitive-row">
-                  <div>
-                    <div class="vs-competitive-row__mode">{{ row.mode }}</div>
-                    <div class="vs-competitive-row__meta">
-                      Rank #{{ row.rank || '-' }} - W/L {{ row.record }}
-                    </div>
-                  </div>
-                  <div class="vs-competitive-row__stats">
-                    <div>
-                      <div class="vs-competitive-row__value vs-mono">{{ row.rating }}</div>
-                      <div class="vs-competitive-row__label">ELO</div>
-                    </div>
-                    <div>
-                      <div class="vs-competitive-row__value vs-mono">{{ row.winRate }}</div>
-                      <div class="vs-competitive-row__label">Win rate</div>
-                    </div>
-                    <div>
-                      <div class="vs-competitive-row__value vs-mono">{{ row.winStreak }}</div>
-                      <div class="vs-competitive-row__label">Racha</div>
-                    </div>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Columna derecha: historial + logros -->
-      <div class="vs-profile__right">
-
-        <!-- Gráfica de progresión -->
-        @if (chartScores().length >= 2) {
+        @case ('overview') {
+          <!-- Competitive / Rankings -->
           <div>
-            <div class="vs-section-title">Progresión de puntuación</div>
-            <div class="vs-card vs-chart-card">
-              <canvas #chartCanvas class="vs-chart-canvas"></canvas>
-              <div class="vs-chart-labels">
-                <span class="vs-mono" style="font-size: 11px; color: var(--vs-text-muted)">más antiguo</span>
-                <span class="vs-mono" style="font-size: 11px; color: var(--vs-text-muted)">más reciente</span>
-              </div>
+            <div class="vs-section-title">Competitive / Rankings</div>
+            <div class="vs-card vs-competitive-card">
+              @if (competitiveLoading()) {
+                <div class="vs-competitive-empty">Cargando ranking competitivo...</div>
+              } @else if (competitiveRows().length === 0) {
+                <div class="vs-competitive-empty">Aun no hay datos competitivos.</div>
+              } @else {
+                @for (row of competitiveRows(); track row.mode) {
+                  <div class="vs-competitive-row">
+                    <div>
+                      <div class="vs-competitive-row__mode">{{ row.mode }}</div>
+                      <div class="vs-competitive-row__meta">
+                        Rank #{{ row.rank || '-' }} - W/L {{ row.record }}
+                      </div>
+                    </div>
+                    <div class="vs-competitive-row__stats">
+                      <div>
+                        <div class="vs-competitive-row__value vs-mono">{{ row.rating }}</div>
+                        <div class="vs-competitive-row__label">ELO</div>
+                      </div>
+                      <div>
+                        <div class="vs-competitive-row__value vs-mono">{{ row.winRate }}</div>
+                        <div class="vs-competitive-row__label">Win rate</div>
+                      </div>
+                      <div>
+                        <div class="vs-competitive-row__value vs-mono">{{ row.winStreak }}</div>
+                        <div class="vs-competitive-row__label">Racha</div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
             </div>
           </div>
+
+          <!-- Gráfica de progresión -->
+          @if (chartScores().length >= 2) {
+            <div>
+              <div class="vs-section-title">Progresión de puntuación</div>
+              <div class="vs-card vs-chart-card">
+                <canvas #chartCanvas class="vs-chart-canvas"></canvas>
+                <div class="vs-chart-labels">
+                  <span class="vs-mono" style="font-size: 11px; color: var(--vs-text-muted)">más antiguo</span>
+                  <span class="vs-mono" style="font-size: 11px; color: var(--vs-text-muted)">más reciente</span>
+                </div>
+              </div>
+            </div>
+          }
         }
 
-        <!-- Contribuir -->
-        <div>
-          <div class="vs-section-title" style="display: flex; align-items: center; justify-content: space-between">
-            <span>Contribuir</span>
-            <span class="vs-proposal-count vs-mono">
-              {{ proposalsPendingCount() }}/{{ proposalsPendingLimit() }}
-            </span>
-          </div>
-
-          <div class="vs-card vs-contribute-card">
-            <app-question-proposal-form (submitted)="loadProposals()" />
-
-            <div class="vs-proposal-history">
-              <div class="vs-proposal-history__title">Historial de propuestas</div>
-
-              @if (proposalsLoading()) {
-                <div class="vs-proposal-history__empty">Cargando propuestas...</div>
-              } @else if (proposals().length === 0) {
-                <div class="vs-proposal-history__empty">Aún no has enviado propuestas.</div>
-              } @else {
-                <div class="vs-proposal-history__list">
-                  @for (proposal of proposals(); track proposal.id) {
-                    <article class="vs-proposal-row">
-                      <div class="vs-proposal-row__top">
-                        <span class="vs-proposal-status" [class]="proposalStatusClass(proposal.status)">
-                          {{ proposalStatusLabel(proposal.status) }}
-                        </span>
-                        <span class="vs-proposal-row__date vs-mono">
-                          {{ proposal.createdAt | date:'dd/MM/yy HH:mm' }}
-                        </span>
-                      </div>
-                      <div class="vs-proposal-row__question">{{ proposal.text }}</div>
-                      <div class="vs-proposal-row__meta">
-                        {{ proposal.type }} · {{ proposal.category }} · {{ proposalAnswerLabel(proposal) }}
-                      </div>
-                      @if (proposal.rejectReason) {
-                        <div class="vs-proposal-row__reject">{{ proposal.rejectReason }}</div>
-                      }
-                    </article>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Historial de partidas -->
-        <div>
-          <div class="vs-section-title" style="display: flex; align-items: center; justify-content: space-between">
-            <span>Historial de partidas</span>
-            <div class="vs-filter-chips">
-              <button class="vs-chip" [class.vs-chip--active]="modeFilter() === undefined" (click)="applyFilter(undefined)">Todos</button>
-              <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'SURVIVAL'" (click)="applyFilter('SURVIVAL')">Supervivencia</button>
-              <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'PRECISION'" (click)="applyFilter('PRECISION')">Precisión</button>
-              <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'BINARY_DUEL'" (click)="applyFilter('BINARY_DUEL')">Duelo</button>
-            </div>
-          </div>
-
-          <div class="vs-card" style="padding: 0">
-            @if (history().length === 0 && !historyLoading()) {
-              <div style="padding: 1.25rem; color: var(--vs-text-muted); text-align: center">
-                Aún no has jugado ninguna partida.
-              </div>
-            } @else {
+        @case ('stats') {
+          <!-- Singleplayer -->
+          <div>
+            <div class="vs-section-title">Singleplayer</div>
+            <div class="vs-card vs-table-card">
               <table class="vs-table">
                 <thead>
                   <tr>
-                    <th>Modo</th>
-                    <th>Fecha</th>
-                    <th>Resultado</th>
-                    <th>Puntuación</th>
-                    <th>Rival</th>
-                    <th></th>
+                    <th>Modo</th><th>Partidas</th><th>Victorias</th><th>% Acierto</th><th>Mejor racha</th><th>Punt. media</th><th>Desv. media</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (h of history(); track h.id) {
+                  @for (s of singleplayerStats(); track s.mode) {
                     <tr>
-                      <td style="font-weight: 600; font-size: 12px">{{ modeLabel(h.mode) }}</td>
-                      <td class="vs-mono" style="font-size: 12px; color: var(--vs-text-muted)">
-                        {{ h.finishedAt | date:'dd/MM/yy HH:mm' }}
-                      </td>
-                      <td>
-                        <span class="vs-result-badge" [class]="resultClass(h.result)">
-                          {{ h.result ?? '—' }}
-                        </span>
-                      </td>
-                      <td class="vs-mono" style="color: var(--vs-accent-gold)">{{ h.score }}</td>
-                      <td style="font-size: 12px; color: var(--vs-text-secondary)">
-                        {{ h.opponent?.username ?? '—' }}
-                      </td>
-                      <td>
-                        <button class="btn btn--ghost btn--xs" (click)="openDetail(h.id)">Ver</button>
-                      </td>
+                      <td style="font-weight: 600">{{ s.mode }}</td>
+                      <td class="vs-mono">{{ s.games }}</td>
+                      <td class="vs-mono">{{ s.wins }}</td>
+                      <td class="vs-mono" style="color: var(--vs-accent-green)">{{ s.acc }}</td>
+                      <td class="vs-mono" style="color: var(--vs-accent-gold)">{{ s.best }}</td>
+                      <td class="vs-mono">{{ s.avgScore }}</td>
+                      <td class="vs-mono" style="color: var(--vs-text-muted)">{{ s.avgDev }}</td>
                     </tr>
                   }
                 </tbody>
               </table>
+            </div>
+          </div>
 
-              @if (historyLoading()) {
-                <div style="padding: 12px; text-align: center; color: var(--vs-text-muted); font-size: 13px">Cargando...</div>
-              }
+          <!-- Multijugador -->
+          <div>
+            <div class="vs-section-title">Multijugador</div>
+            <div class="vs-card vs-table-card">
+              <table class="vs-table">
+                <thead>
+                  <tr>
+                    <th>Modo</th><th>Partidas</th><th>Victorias</th><th>% Acierto</th><th>Mejor racha</th><th>Punt. media</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (s of multiplayerStats(); track s.mode) {
+                    <tr>
+                      <td style="font-weight: 600">{{ s.mode }}</td>
+                      <td class="vs-mono">{{ s.games }}</td>
+                      <td class="vs-mono">{{ s.wins }}</td>
+                      <td class="vs-mono" style="color: var(--vs-accent-green)">{{ s.acc }}</td>
+                      <td class="vs-mono" style="color: var(--vs-accent-gold)">{{ s.best }}</td>
+                      <td class="vs-mono">{{ s.avgScore }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
 
-              @if (historyHasMore() && !historyLoading()) {
-                <div style="padding: 12px; text-align: center">
-                  <button class="btn btn--ghost btn--sm" (click)="loadMore()">Cargar más</button>
+        @case ('history') {
+          <div>
+            <div class="vs-section-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
+              <span>Historial de partidas</span>
+              <div class="vs-filter-chips">
+                <button class="vs-chip" [class.vs-chip--active]="modeFilter() === undefined" (click)="applyFilter(undefined)">Todos</button>
+                <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'SURVIVAL'" (click)="applyFilter('SURVIVAL')">Supervivencia</button>
+                <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'PRECISION'" (click)="applyFilter('PRECISION')">Precisión</button>
+                <button class="vs-chip" [class.vs-chip--active]="modeFilter() === 'BINARY_DUEL'" (click)="applyFilter('BINARY_DUEL')">Duelo</button>
+              </div>
+            </div>
+
+            <div class="vs-card" style="padding: 0">
+              @if (history().length === 0 && !historyLoading()) {
+                <div style="padding: 1.25rem; color: var(--vs-text-muted); text-align: center">
+                  Aún no has jugado ninguna partida.
                 </div>
+              } @else {
+                <table class="vs-table vs-history-table">
+                  <thead>
+                    <tr>
+                      <th>Modo</th>
+                      <th>Fecha</th>
+                      <th>Resultado</th>
+                      <th>Puntuación</th>
+                      <th>Rival</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (h of history(); track h.id) {
+                      <tr>
+                        <td class="vs-history-td--mode" data-label="Modo" style="font-weight: 600; font-size: 12px">{{ modeLabel(h.mode) }}</td>
+                        <td class="vs-history-td--date vs-mono" data-label="Fecha" style="font-size: 12px; color: var(--vs-text-muted)">
+                          {{ h.finishedAt | date:'dd/MM/yy HH:mm' }}
+                        </td>
+                        <td class="vs-history-td--result" data-label="Resultado">
+                          <span class="vs-result-badge" [class]="resultClass(h.result)">
+                            {{ h.result ?? '—' }}
+                          </span>
+                        </td>
+                        <td class="vs-history-td--score vs-mono" data-label="Puntuación" style="color: var(--vs-accent-gold)">{{ h.score }}</td>
+                        <td class="vs-history-td--rival" data-label="Rival" style="font-size: 12px; color: var(--vs-text-secondary)">
+                          {{ h.opponent?.username ?? '—' }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+
+                @if (historyLoading()) {
+                  <div style="padding: 12px; text-align: center; color: var(--vs-text-muted); font-size: 13px">Cargando...</div>
+                }
+
+                @if (historyHasMore() && !historyLoading()) {
+                  <div style="padding: 12px; text-align: center">
+                    <button class="btn btn--ghost btn--sm" (click)="loadMore()">Cargar más</button>
+                  </div>
+                }
               }
+            </div>
+          </div>
+        }
+
+        @case ('achievements') {
+          <div>
+            <div class="vs-section-title vs-section-title--with-count">
+              <span>Logros</span>
+              <span class="vs-achievements-count">{{ unlockedCount() }}/{{ totalAchievements() }}</span>
+            </div>
+            @if (achievements().length === 0) {
+              <div class="vs-card" style="color: var(--vs-text-muted); text-align: center">
+                Aún no hay logros disponibles.
+              </div>
+            } @else {
+              <div class="vs-achievements-grid">
+                @for (achievement of achievements(); track achievement.id) {
+                  <article class="vs-badge-card" [class.vs-badge-card--locked]="!achievement.unlocked">
+                    <div class="vs-badge-card__top">
+                      <div class="vs-badge-card__icon">{{ achievementIcon(achievement.iconKey) }}</div>
+                      <div class="vs-badge-card__date">{{ achievementDate(achievement) }}</div>
+                    </div>
+                    <div class="vs-badge-card__name">{{ achievement.name }}</div>
+                    <div class="vs-badge-card__desc">{{ achievement.description }}</div>
+                    <div class="vs-badge-card__category">{{ achievement.category }}</div>
+                  </article>
+                }
+              </div>
             }
           </div>
-        </div>
+        }
 
-        <!-- Logros -->
-        <div>
-          <div class="vs-section-title vs-section-title--with-count">
-            <span>Logros</span>
-            <span class="vs-achievements-count">{{ unlockedCount() }}/{{ totalAchievements() }}</span>
-          </div>
-          @if (achievements().length === 0) {
-            <div class="vs-card" style="color: var(--vs-text-muted); text-align: center">
-              Aún no hay logros disponibles.
+        @case ('contribute') {
+          <div>
+            <div class="vs-section-title" style="display: flex; align-items: center; justify-content: space-between">
+              <span>Contribuir</span>
+              <span class="vs-proposal-count vs-mono">
+                {{ proposalsPendingCount() }}/{{ proposalsPendingLimit() }}
+              </span>
             </div>
-          } @else {
-            <div class="vs-achievements-grid">
-              @for (achievement of achievements(); track achievement.id) {
-                <article class="vs-badge-card" [class.vs-badge-card--locked]="!achievement.unlocked">
-                  <div class="vs-badge-card__top">
-                    <div class="vs-badge-card__icon">{{ achievementIcon(achievement.iconKey) }}</div>
-                    <div class="vs-badge-card__date">{{ achievementDate(achievement) }}</div>
+
+            <div class="vs-card vs-contribute-card">
+              <app-question-proposal-form (submitted)="loadProposals()" />
+
+              <div class="vs-proposal-history">
+                <div class="vs-proposal-history__title">Historial de propuestas</div>
+
+                @if (proposalsLoading()) {
+                  <div class="vs-proposal-history__empty">Cargando propuestas...</div>
+                } @else if (proposals().length === 0) {
+                  <div class="vs-proposal-history__empty">Aún no has enviado propuestas.</div>
+                } @else {
+                  <div class="vs-proposal-history__list">
+                    @for (proposal of proposals(); track proposal.id) {
+                      <article class="vs-proposal-row">
+                        <div class="vs-proposal-row__top">
+                          <span class="vs-proposal-status" [class]="proposalStatusClass(proposal.status)">
+                            {{ proposalStatusLabel(proposal.status) }}
+                          </span>
+                          <span class="vs-proposal-row__date vs-mono">
+                            {{ proposal.createdAt | date:'dd/MM/yy HH:mm' }}
+                          </span>
+                        </div>
+                        <div class="vs-proposal-row__question">{{ proposal.text }}</div>
+                        <div class="vs-proposal-row__meta">
+                          {{ proposal.type }} · {{ proposal.category }} · {{ proposalAnswerLabel(proposal) }}
+                        </div>
+                        @if (proposal.rejectReason) {
+                          <div class="vs-proposal-row__reject">{{ proposal.rejectReason }}</div>
+                        }
+                      </article>
+                    }
                   </div>
-                  <div class="vs-badge-card__name">{{ achievement.name }}</div>
-                  <div class="vs-badge-card__desc">{{ achievement.description }}</div>
-                  <div class="vs-badge-card__category">{{ achievement.category }}</div>
-                </article>
-              }
+                }
+              </div>
             </div>
-          }
-        </div>
-
-      </div>
+          </div>
+        }
+      }
     </div>
   </div>
-
-  <!-- Modal de detalle de partida -->
-  <app-match-detail-modal
-    [matchId]="selectedMatchId()"
-    (closed)="closeDetail()"
-  />
 </div>

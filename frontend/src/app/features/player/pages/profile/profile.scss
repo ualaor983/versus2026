@@ -43,25 +43,51 @@
   }
 }
 
-.vs-profile__cols {
+.vs-profile__tabs {
   display: flex;
-  gap: 24px;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--vs-border);
+  padding-bottom: 0;
+  margin-bottom: 4px;
 }
 
-.vs-profile__left {
-  flex: 0 0 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.vs-profile-tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--vs-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 10px 16px;
+  text-transform: uppercase;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: var(--vs-text-primary);
+  }
+
+  &--active {
+    border-bottom-color: var(--vs-accent-gold);
+    color: var(--vs-accent-gold);
+  }
 }
 
-.vs-profile__right {
-  flex: 1;
+.vs-profile__panel {
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-width: 0;
+}
+
+.vs-table-card {
+  padding: 0;
+  overflow-x: auto;
 }
 
 .vs-filter-chips {
@@ -371,12 +397,58 @@
     flex-direction: column;
   }
 
-  .vs-profile__cols {
-    flex-direction: column;
+  .vs-profile-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
   }
+}
 
-  .vs-profile__left {
-    flex: none;
-    width: 100%;
+@media (max-width: 640px) {
+  .vs-history-table {
+    thead { display: none; }
+    tbody, tr, td { display: block; width: 100%; }
+
+    tr {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--vs-border);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 12px;
+      row-gap: 4px;
+      align-items: center;
+
+      &:last-child { border-bottom: 0; }
+    }
+
+    td {
+      padding: 0;
+      border: 0;
+    }
+
+    td.vs-history-td--mode {
+      grid-column: 1;
+      font-size: 13px !important;
+    }
+
+    td.vs-history-td--result {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+    }
+
+    td.vs-history-td--date {
+      grid-column: 1 / -1;
+      font-size: 11px !important;
+    }
+
+    td.vs-history-td--score {
+      grid-column: 1;
+    }
+
+    td.vs-history-td--rival {
+      grid-column: 2;
+      justify-self: end;
+    }
   }
 }

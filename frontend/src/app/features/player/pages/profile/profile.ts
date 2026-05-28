@@ -26,8 +26,11 @@ import {
   MatchHistoryItem,
   PlayerStatsOverview,
 } from '../../../../core/models/game.models';
-import { MatchDetailModal } from './match-detail-modal/match-detail-modal';
 import { QuestionProposalForm } from '../../../questions/components/question-proposal-form/question-proposal-form';
+
+type ProfileTab = 'overview' | 'stats' | 'history' | 'achievements' | 'contribute';
+const PROFILE_TAB_KEY = 'vs-profile-tab';
+const PROFILE_TABS: ProfileTab[] = ['overview', 'stats', 'history', 'achievements', 'contribute'];
 
 const MODE_LABEL: Record<GameMode, string> = {
   SURVIVAL: 'Supervivencia',
@@ -43,7 +46,7 @@ const MULTIPLAYER_MODES: GameMode[] = ['BINARY_DUEL', 'PRECISION_DUEL', 'SABOTAG
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [RouterLink, TopbarComponent, MatchDetailModal, DatePipe, AvatarComponent, QuestionProposalForm],
+  imports: [RouterLink, TopbarComponent, DatePipe, AvatarComponent, QuestionProposalForm],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -63,8 +66,8 @@ export class Profile implements OnInit {
   readonly historyPage = signal(0);
   readonly historyHasMore = signal(false);
   readonly historyLoading = signal(false);
-  readonly selectedMatchId = signal<string | null>(null);
   readonly modeFilter = signal<GameMode | undefined>(undefined);
+  readonly activeTab = signal<ProfileTab>(this.readStoredTab());
   readonly achievements = signal<Achievement[]>([]);
   readonly competitiveRankings = signal<RankingSummary[]>([]);
   readonly competitiveLoading = signal(false);
@@ -72,8 +75,6 @@ export class Profile implements OnInit {
   readonly proposalsPendingCount = signal(0);
   readonly proposalsPendingLimit = signal(5);
   readonly proposalsLoading = signal(false);
-
-  private chartDrawn = false;
 
   readonly username = computed(() => this.me()?.username ?? this.auth.user()?.username ?? '—');
 
@@ -237,12 +238,22 @@ export class Profile implements OnInit {
     this.loadHistory(0);
   }
 
-  openDetail(matchId: string): void {
-    this.selectedMatchId.set(matchId);
+  setTab(tab: ProfileTab): void {
+    this.activeTab.set(tab);
+    try {
+      localStorage.setItem(PROFILE_TAB_KEY, tab);
+    } catch {}
+    if (tab === 'overview') {
+      setTimeout(() => this.drawChart(), 0);
+    }
   }
 
-  closeDetail(): void {
-    this.selectedMatchId.set(null);
+  private readStoredTab(): ProfileTab {
+    try {
+      const stored = localStorage.getItem(PROFILE_TAB_KEY) as ProfileTab | null;
+      if (stored && PROFILE_TABS.includes(stored)) return stored;
+    } catch {}
+    return 'overview';
   }
 
   modeLabel(mode: GameMode): string {
@@ -346,7 +357,5 @@ export class Profile implements OnInit {
       ctx.fillStyle = '#f0c060';
       ctx.fill();
     });
-
-    this.chartDrawn = true;
   }
 }

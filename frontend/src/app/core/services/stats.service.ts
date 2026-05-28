@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   GameMode,
-  MatchDetail,
   MatchHistoryItem,
   PagedResponse,
   PlayerStats,
@@ -29,9 +28,5 @@ export class StatsService {
     let params = new HttpParams().set('page', page).set('size', size);
     if (mode) params = params.set('mode', mode);
     return this.http.get<PagedResponse<MatchHistoryItem>>(`${this.base}/users/me/history`, { params });
-  }
-
-  matchDetail(id: string): Observable<MatchDetail> {
-    return this.http.get<MatchDetail>(`${this.base}/matches/${id}`);
   }
 }

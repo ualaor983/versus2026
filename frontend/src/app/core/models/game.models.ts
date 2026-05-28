@@ -128,31 +128,6 @@ export interface MatchHistoryItem {
   opponent: OpponentSummary | null;
 }
 
-export interface RoundDetail {
-  roundNumber: number;
-  questionId: string;
-  questionText: string;
-  correct: boolean;
-  answerGiven: string;
-  deviation: number | null;
-}
-
-export interface MatchDetail {
-  id: string;
-  mode: GameMode;
-  createdAt: string;
-  finishedAt: string;
-  players: {
-    userId: string;
-    username: string;
-    score: number;
-    livesRemaining: number;
-    bestStreakInMatch: number;
-    result: 'WIN' | 'LOSS' | 'DRAW' | 'ABANDONED' | null;
-  }[];
-  rounds: RoundDetail[];
-}
-
 export interface PagedResponse<T> {
   content: T[];
   totalElements: number;
